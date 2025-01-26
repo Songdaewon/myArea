@@ -1,61 +1,51 @@
 package test;
-import java.util.*;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 public class test {
-    
-    static int n, m;
-    static char[][] board;
-    static boolean[][] memo;
-    static int[] dx = {0, 1, 0, -1};
-    static int[] dy = {1, 0, -1, 0};
-    static int firstX, firstY;
-    
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
- 
-        n = scan.nextInt();
-        m = scan.nextInt();
-        scan.nextLine();
-        
-        board = new char[n][m];
-        for(int i = 0; i < n; i++) {
-            String str = scan.nextLine();
-            for(int j = 0; j < m; j++) {
-                board[i][j] = str.charAt(j);
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        int S = sc.nextInt();
+        //S개를 만드는 최솟값 => BFS 탐색
+
+        boolean[][] visit = new boolean[2001][2001];
+        Queue<int[]> q = new LinkedList<>();
+        q.offer(new int[]{1, 0, 0}); //지금 이모티콘 수, 클립보드 이모티콘 수, 연산 횟수
+        visit[1][0] = true;
+
+        int result = 0;
+        while (!q.isEmpty()) {
+            int[] current = q.poll();
+            int now = current[0];
+            int save = current[1];
+            int cnt = current[2];
+
+            if (now == S) {
+                result = cnt;
+                break;
+            }
+
+            //1번
+            if (now > 0 && !visit[now][now]) {
+                q.offer(new int[]{now, now, cnt + 1});
+                visit[now][now] = true;
+            }
+
+            //2번
+            if (save > 0 && now+save <2000 && !visit[now + save][save]) {
+                q.offer(new int[]{now + save, save, cnt + 1});
+                visit[now + save][save] = true;
+            }
+
+            //3번
+            if (now > 0 && !visit[now - 1][save]) {
+                q.offer(new int[]{now - 1, save, cnt + 1});
+                visit[now - 1][save] = true;
             }
         }
-    
-        boolean isCircle = false;
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < m; j++) {
-                memo = new boolean[n][m];
-                firstX = i;
-                firstY = j;
-                if(dfs(i, j, 1)) {
-                    System.out.println("Yes");
-                    return;
-                }
-            }
-        }
-        
-        System.out.println("No");
-    }
-    
-    public static boolean dfs(int x, int y, int count) {        
-        memo[x][y] = true;
-        for(int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            
-            if(nx >= 0 && ny >= 0 && nx < n && ny < m && board[x][y] == board[nx][ny]) {
-                if(memo[nx][ny] == false) {
-                    memo[nx][ny] = true;
-                    if(dfs(nx, ny, count + 1)) return true;
-                } else {
-                    if(count >= 4 && firstX == nx && firstY == ny) return true;
-                }
-            }
-        }
-        return false;
+
+        System.out.println(result);
     }
 }
