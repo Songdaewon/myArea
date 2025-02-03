@@ -1,88 +1,101 @@
 package part6;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class TreeHL {
+    static class Node {
+        int num;
+        int parent;
+        int left;
+        int right;
 
-	static class Node{
-		int left;
-		int right;
-		
-		public Node(int left, int right) {
-			this.left = left;
-			this.right = right;
-		}
-	}
-	static List<Node>[] list;
-	static List<Integer>[] nodeChart;
-	static int height=1, row=0;
-	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		
-		int n = Integer.parseInt(br.readLine());
-		
-		list = new ArrayList[n+1];
-		nodeChart = new ArrayList[n+1];
-		for(int i=1; i<n+1; i++) {
-			list[i] = new ArrayList<>();
-			nodeChart[i] = new ArrayList<>();
-		}
-		
-		int[] ranks = new int[n+1];
-		StringTokenizer st = null;
-		for(int i=0; i<n; i++) {
-			st = new StringTokenizer(br.readLine());
-			int mid = Integer.parseInt(st.nextToken());
-			int left = Integer.parseInt(st.nextToken());
-			int right = Integer.parseInt(st.nextToken());
-			
-			if(left!=-1) ranks[left]++;
-			if(right!=-1) ranks[right]++;
-			list[mid].add(new Node(left, right));
-		}
-		
-		int root = -1;
-		for(int i=1; i<n+1; i++) {
-			if(ranks[i]==0) {
-				root=i;
-				break;
-			}
-		}
-		traversal(root);
-		int max = -1, level=0;
-		for(int i=1; i<n+1; i++) {
-			int len = nodeChart[i].size();
-			if(len>0) {
-				int s = nodeChart[i].get(0);
-				int e = nodeChart[i].get(len-1);
-				int width = e-s+1;
-					
-				if(max < width) {
-					max = width;
-					level=i;
-				}
-			}
-		}
-		System.out.println(level+" "+max);
-	}
-	
-	// 중위 순회 
-	static void traversal(int node) {
-		for(Node nxt : list[node]) {
-			if(nxt.left != -1) {
-				height++;
-				traversal(nxt.left);
-			}
-			row++;
-			nodeChart[height].add(row);
-			if(nxt.right!= -1) {
-				height++;
-				traversal(nxt.right);
-			}
-			height--;
-		}
-	}
+        public Node(int num, int left, int right) {
+            this.num = num;
+            this.left = left;
+            this.right = right;
+            this.parent = -1;
+        }
+    }
+
+    static Node[] tree;
+    static int[] max, min;
+    static int idx, maxLevel;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int N = Integer.parseInt(br.readLine());
+
+        tree = new Node[N + 1];
+        max = new int[N + 1];
+        min = new int[N + 1];
+        for (int i = 1; i < N + 1; i++) {
+            tree[i] = new Node(i, -1, -1);
+            max[i] = 0;
+            min[i] = N + 1;
+        }
+
+        for (int i = 0; i < N; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int num = Integer.parseInt(st.nextToken());
+            int left = Integer.parseInt(st.nextToken());
+            int right = Integer.parseInt(st.nextToken());
+
+            tree[num].left = left;
+            tree[num].right = right;
+
+            if (left > 0) {
+                tree[left].parent = num;
+            }
+            if (right > 0) {
+                tree[right].parent = num;
+            }
+        }
+
+        int root = 0;
+        for (int i = 1; i < N + 1; i++) {
+            if (tree[i].parent == -1) {
+                root = i;
+            }
+        }
+
+        idx = 1;
+        maxLevel = 0;
+        inOrder(root, 1);
+
+        int ansLevel = 0;
+        int ansWidth = 0;
+        for (int i = 1; i <= maxLevel; i++) {
+            int width = max[i] - min[i] + 1;
+            if (ansWidth < width) {
+                ansLevel = i;
+                ansWidth = width;
+            }
+        }
+
+        System.out.println(ansLevel + " " + ansWidth);
+    }
+
+    private static void inOrder(int num, int level) {
+        Node node = tree[num];
+
+        if (node.left > 0) {
+            inOrder(node.left, level + 1);
+        }
+
+        maxLevel = Math.max(maxLevel, level);
+        max[level] = Math.max(max[level], idx);
+        min[level] = Math.min(min[level], idx);
+        idx++;
+
+        if (node.right > 0) {
+            inOrder(node.right, level + 1);
+        }
+    }
+
 }
+
+
+
+
+
