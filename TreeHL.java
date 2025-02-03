@@ -1,99 +1,102 @@
 package part6;
 
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
 
 public class TreeHL {
-    static class Node {
-        int num;
-        int parent;
-        int left;
-        int right;
 
-        public Node(int num, int left, int right) {
-            this.num = num;
-            this.left = left;
-            this.right = right;
-            this.parent = -1;
-        }
-    }
+	static class Node{
+		int value;
+		Node left;
+		Node right;
+		int level;
+		int row;
 
-    static Node[] tree;
-    static int[] max, min;
-    static int idx, maxLevel;
+		public Node(int value) {
+			this.value = value;
+		}
+	}
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
+	static int n;
+	static int row=1;
+	static int maxLevel=-100;
+	static int[] minR, maxR;
+	static Node[] node;
 
-        tree = new Node[N + 1];
-        max = new int[N + 1];
-        min = new int[N + 1];
-        for (int i = 1; i < N + 1; i++) {
-            tree[i] = new Node(i, -1, -1);
-            max[i] = 0;
-            min[i] = N + 1;
-        }
+	public static void main(String[] args) throws IOException{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		n = Integer.parseInt(br.readLine());
 
-        for (int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int num = Integer.parseInt(st.nextToken());
-            int left = Integer.parseInt(st.nextToken());
-            int right = Integer.parseInt(st.nextToken());
+		node = new Node[n+1];
+		minR = new int[n+1];
+		maxR = new int[n+1];
 
-            tree[num].left = left;
-            tree[num].right = right;
+		for (int i = 1; i <= n; i++)
+			node[i] = new Node(i);
 
-            if (left > 0) {
-                tree[left].parent = num;
-            }
-            if (right > 0) {
-                tree[right].parent = num;
-            }
-        }
+		boolean[] ischild = new boolean[n + 1];
 
-        int root = 0;
-        for (int i = 1; i < N + 1; i++) {
-            if (tree[i].parent == -1) {
-                root = i;
-            }
-        }
+		for(int i=0;i<n;i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			int root = Integer.parseInt(st.nextToken());
+			int left = Integer.parseInt(st.nextToken());
+			int right = Integer.parseInt(st.nextToken());
 
-        idx = 1;
-        maxLevel = 0;
-        inOrder(root, 1);
+			if(left!=-1) {
+				node[root].left=node[left];
+				ischild[left]=true;
+			}
+			if(right!=-1) {
+				node[root].right=node[right];
+				ischild[right]=true;
+			}
+		}
 
-        int ansLevel = 0;
-        int ansWidth = 0;
-        for (int i = 1; i <= maxLevel; i++) {
-            int width = max[i] - min[i] + 1;
-            if (ansWidth < width) {
-                ansLevel = i;
-                ansWidth = width;
-            }
-        }
+		setLevel(node[1],1);
+		setRow(node[1]);
+		//minR 배열을 최대값으로 초기화
+		Arrays.fill(minR, Integer.MAX_VALUE);
+		
+		int maxWidth = 0, bestLevel = 0;
+		for (int i = 1; i <= maxLevel; i++) {
+			int width = maxR[i] - minR[i] + 1;
+			if (width > maxWidth) {
+				maxWidth = width;
+				bestLevel = i;
+			}
+		}
 
-        System.out.println(ansLevel + " " + ansWidth);
-    }
+		System.out.println(bestLevel + " " + maxWidth);
+	}
+	static void setLevel(Node n,int level) {
+		if(n==null)
+			return;
+		
+		n.level=level;
 
-    private static void inOrder(int num, int level) {
-        Node node = tree[num];
+		//가장 큰 레벨 저장
+		maxLevel = Math.max(maxLevel, level);
 
-        if (node.left > 0) {
-            inOrder(node.left, level + 1);
-        }
+		setLevel(n.left,level+1);
+		setLevel(n.right,level+1);
 
-        maxLevel = Math.max(maxLevel, level);
-        max[level] = Math.max(max[level], idx);
-        min[level] = Math.min(min[level], idx);
-        idx++;
 
-        if (node.right > 0) {
-            inOrder(node.right, level + 1);
-        }
-    }
+	}
+	private static void setRow(Node n) {
+		if (n == null) 
+			return;
+
+		setRow(n.left); // 왼쪽 노드 탐색
+		n.row=row++;
+		minR[n.level] = Math.min(minR[n.level], n.row);
+		maxR[n.level] = Math.max(maxR[n.level], n.row);
+		setRow(n.right); // 오른쪽 노드 탐색
+	}
 
 }
+
 
 
 
