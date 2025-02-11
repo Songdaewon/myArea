@@ -6,75 +6,65 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Back_14888 {
-	public static int maxValue = Integer.MIN_VALUE;	
-	public static int minValue = Integer.MAX_VALUE;	
-	public static int[] operator = new int[4];	    // 연산자 개수 [더하기, 빼기, 곱하기, 나누기]의 순으로 각각의 개수 들어감
-	public static int[] number;					    // 숫자 => 연산자와 연결할 숫자 배열
-	public static int N;						    // 숫자 개수
-
+	static int n;
+	static int max = Integer.MIN_VALUE;
+	static int min = Integer.MAX_VALUE;
+	static int number[], oper[] = new int[4];
 	public static void main(String[] args) throws IOException {
-
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		n = Integer.parseInt(br.readLine());
 
-		N = Integer.parseInt(br.readLine()); //숫자의 개수
-		number = new int[N]; //숫자 넣을 배열 초기화
+		number = new int[n];
 
-		// 숫자 입력
-		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-		for (int i = 0; i < N; i++) {
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for(int i=0;i<n;i++)
 			number[i] = Integer.parseInt(st.nextToken());
-		}
 
-		// 연산자 입력
-		st = new StringTokenizer(br.readLine(), " ");
-		for (int i = 0; i < 4; i++) { //더하기, 빼기, 곱하기, 나누기 연산자가 존재하므로 총 4개
-			operator[i] = Integer.parseInt(st.nextToken());
-		}
-		br.close();
+		st = new StringTokenizer(br.readLine());
+		for(int i=0;i<4;i++) 
+			oper[i] = Integer.parseInt(st.nextToken());
+
 
 		solution(number[0], 1);
 
-		System.out.println(maxValue);
-		System.out.println(minValue);
-
+		System.out.println(max);
+		System.out.println(min);
 	}
 
-	// 최솟값 최댓값을 찾아서 변수에 저장하는 백트래킹 솔루션
-	public static void solution(int num, int index) {
-
-		if (index == N) {
-			maxValue = Math.max(maxValue, num);
-			minValue = Math.min(minValue, num);
+	static void solution(int num, int idx) {
+		if(idx==n) {
+			max = Math.max(num, max);
+			min = Math.min(num, min);
 			return;
 		}
 
-		for (int i = 0; i < 4; i++) {
-			// 연산자 개수가 1개 이상인 경우
-			if (operator[i] > 0) {
+		for(int i=0;i<4;i++) {
+			if(oper[i]>0) {
+				oper[i]--;
 
-				// 해당 연산자를 1 감소시킨다.
-				operator[i]--;
-
-				switch (i) {
-
-				case 0: //더하기일 경우
-					solution(num + number[index], index + 1);
+				switch(i) {
+				case 0:
+					solution(num + number[idx], idx + 1);
 					break;
-				case 1: //빼기일 경우
-					solution(num - number[index], index + 1);
+				case 1:
+					solution(num - number[idx], idx + 1);
 					break;
-				case 2: //곱하기일 경우
-					solution(num * number[index], index + 1);
+				case 2:
+					solution(num * number[idx], idx + 1);
 					break;
-				case 3: //나누기일 경우
-					solution(num / number[index], index + 1);
+				case 3:
+					solution(num / number[idx], idx + 1);
 					break;
-
 				}
-				// 재귀호출이 종료되면 다시 해당 연산자 개수를 복구한다.
-				operator[i]++;
+				oper[i]++;
 			}
 		}
 	}
-
 }
+
+
+
+
+
+
+
