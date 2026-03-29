@@ -1,0 +1,43 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.PriorityQueue;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int N = Integer.parseInt(br.readLine());
+        
+        PriorityQueue<Integer> myQueue = new PriorityQueue<>((o1,o2)->{
+            // 절댓값이 작은 데이터를 우선
+            // 양수 return시 o2의 우선순위가 더높
+            // 음수 return시 o1의 우선순위가 더높
+            int f_abs = Math.abs(o1);
+            int s_abs = Math.abs(o2);
+            if(f_abs == s_abs){
+                //절댓값이 같은경우
+                if(o1 > o2 ){
+                    //o1이 양수이므로 음수인 o2가 우선순위가 높
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+            return f_abs-s_abs; //절댓값이 작은 데이터를 우선
+        });
+        
+        for(int i=0; i<N; i++){
+            int request = Integer.parseInt(br.readLine());
+            if(request==0){
+                if(myQueue.isEmpty()){
+                    System.out.println("0");
+                } else {
+                    System.out.println(myQueue.poll());
+                }
+            } else {
+                myQueue.add(request);
+            }
+        }
+    }
+}
